@@ -14,7 +14,6 @@ import com.bignerdranch.android.sunset.databinding.ActivityMainBinding
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-    var isSunriseRunning = false
 
     private val blueSkyColor: Int by lazy {
         ContextCompat.getColor(this, R.color.blue_sky)
@@ -32,12 +31,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.scene.setOnClickListener {
-
-            if (isSunriseRunning) {
-                sunrise()
-            } else {
-                sunset()
-            }
+            startAnimation()
         }
     }
 
@@ -45,7 +39,7 @@ class MainActivity : AppCompatActivity() {
 
 
 
-    private fun sunset() {
+    private fun startAnimation() {
         val sunYStart = binding.sun.top.toFloat()
         val sunYEnd = binding.sky.height.toFloat()
 
@@ -64,7 +58,6 @@ class MainActivity : AppCompatActivity() {
             .setDuration(1500)
         nightSkyAnimator.setEvaluator(ArgbEvaluator())
 
-        // Pulsing Sun
         val scalex = ObjectAnimator.ofFloat(binding.sun, "scaleX", 1.0f, 1.2f)
         val scaley = ObjectAnimator.ofFloat(binding.sun, "scaleY", 1.0f, 1.2f)
         scalex.repeatMode = ObjectAnimator.REVERSE
@@ -81,12 +74,7 @@ class MainActivity : AppCompatActivity() {
             .before(nightSkyAnimator)
         animatorSet.start()
 
-        isSunriseRunning = true
-    }
 
-    fun sunrise() {
-        val sunYStart = binding.sun.top.toFloat()
-        val sunYEnd = binding.sky.height.toFloat()
 
         val heightAnimatorReverse = ObjectAnimator
             .ofFloat(binding.sun, "y", sunYEnd, sunYStart)
@@ -104,24 +92,16 @@ class MainActivity : AppCompatActivity() {
         daylightSkyAnimator.setEvaluator(ArgbEvaluator())
 
 
-        // Pulsing Sun
-        val scalex = ObjectAnimator.ofFloat(binding.sun, "scaleX", 1.0f, 1.2f)
-        val scaley = ObjectAnimator.ofFloat(binding.sun, "scaleY", 1.0f, 1.2f)
-        scalex.repeatMode = ObjectAnimator.REVERSE
-        scalex.repeatCount = 10
-        scaley.repeatMode = ObjectAnimator.REVERSE
-        scaley.repeatCount = 10
-
-        // Animation Set 2
         val animatorSetReverse = AnimatorSet()
         animatorSetReverse.play(heightAnimatorReverse)
+            .after(animatorSet)
             .with(scalex)
             .with(scaley)
             .with(sunriseSkyAnimator)
             .before(daylightSkyAnimator)
         animatorSetReverse.start()
 
-        isSunriseRunning = false
+
     }
 
 
